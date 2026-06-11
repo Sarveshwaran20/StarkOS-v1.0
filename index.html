@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StarkOS v1.1</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="boot-screen" class="boot-screen">
+      <div id="boot-text"></div>
+    </div>
+
+    <div class="grid-overlay"></div>
+
+    <div class="arc-core-hud">
+      <div class="hud-ring ring-outer"></div>
+      <div class="hud-ring ring-middle"></div>
+      <div class="hud-ring ring-inner"></div>
+      <div class="hud-clock-readout">
+        <div id="hud-time"></div>
+        <div id="hud-date"></div>
+        <div
+          id="hud-weather"
+          style="
+            margin-top: 15px;
+            font-size: 1rem;
+            color: rgba(0, 243, 255, 0.8);
+            font-weight: 600;
+            letter-spacing: 2px;
+          "
+        >
+          > SATELLITE LINK PENDING...
+        </div>
+      </div>
+    </div>
+
+    <div class="stark-desktop">
+      <div class="desktop-sidebar-wrapper">
+        <div class="sidebar-toggle" onclick="toggleSidebar()">
+          <span id="toggle-icon"><<</span>
+        </div>
+        <div class="desktop-icons" id="desktop-sidebar">
+          <div class="desktop-icon" onclick="openWindow('terminal-window')">
+            <div class="icon-graphic">>_</div>
+            <span>Terminal</span>
+          </div>
+          <div class="desktop-icon" onclick="openWindow('notes-window')">
+            <div class="icon-graphic">📝</div>
+            <span>System Logs</span>
+          </div>
+          <div class="desktop-icon" onclick="openWindow('photo-window')">
+            <div class="icon-graphic">🖼️</div>
+            <span>Schematics</span>
+          </div>
+          <div class="desktop-icon" onclick="openWindow('video-window')">
+            <div class="icon-graphic">▶️</div>
+            <span>Media</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="stark-window"
+        id="terminal-window"
+        style="top: 10vh; left: 15vw; width: 460px; height: 380px"
+      >
+        <div class="window-header">
+          <div class="window-controls">
+            <span
+              class="close-btn"
+              onclick="closeWindow('terminal-window')"
+            ></span>
+          </div>
+          <span class="window-title">J.A.R.V.I.S. // MAINFRAME</span>
+        </div>
+        <div class="window-content terminal-wrapper">
+          <div id="terminal-output">
+            <div>[STARK OS INITIALIZED]</div>
+            <div>READY FOR SECURE PROTOCOLS. TYPE 'help'.</div>
+          </div>
+          <div class="terminal-input-area">
+            <span class="prompt-symbol">></span>
+            <input
+              type="text"
+              id="jarvis-input"
+              autocomplete="off"
+              placeholder="Command..."
+            />
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="stark-window"
+        id="notes-window"
+        style="
+          top: 15vh;
+          left: 50vw;
+          width: 420px;
+          height: 350px;
+          display: none;
+        "
+      >
+        <div class="window-header">
+          <div class="window-controls">
+            <span
+              class="close-btn"
+              onclick="closeWindow('notes-window')"
+            ></span>
+          </div>
+          <span class="window-title">SECURE CORE // ENCRYPTED LOGS</span>
+        </div>
+        <div
+          class="window-content"
+          style="
+            padding: 15px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          "
+        >
+          <button
+            onclick="downloadLogs()"
+            class="custom-file-btn"
+            style="
+              align-self: flex-start;
+              padding: 6px 15px;
+              font-size: 0.85rem;
+            "
+          >
+            EXPORT TO LOCAL DRIVE
+          </button>
+          <textarea
+            id="stark-notes"
+            placeholder="Input direct mainframe logs here..."
+            style="
+              flex-grow: 1;
+              padding: 10px;
+              margin: 0;
+              background: transparent;
+              border: 1px solid rgba(0, 243, 255, 0.2);
+              color: #00f3ff;
+              font-family: &quot;Rajdhani&quot;, monospace;
+              resize: none;
+              outline: none;
+            "
+          ></textarea>
+        </div>
+      </div>
+
+      <div
+        class="stark-window"
+        id="photo-window"
+        style="
+          top: 30vh;
+          left: 25vw;
+          width: 620px;
+          height: 460px;
+          display: none;
+        "
+      >
+        <div class="window-header">
+          <div class="window-controls">
+            <span
+              class="close-btn"
+              onclick="closeWindow('photo-window')"
+            ></span>
+          </div>
+          <span class="window-title">ANALYST // SCHEMATIC ARRAYS</span>
+        </div>
+        <div
+          class="window-content gallery-wrapper"
+          style="display: flex; flex-direction: column; height: 100%"
+        >
+          <div
+            class="upload-zone"
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              gap: 10px;
+              justify-content: center;
+              align-items: center;
+              border-bottom: 1px dashed rgba(0, 243, 255, 0.2);
+              padding-bottom: 10px;
+            "
+          >
+            <label for="local-image-loader" class="custom-file-btn"
+              >LOCAL UPLINK</label
+            >
+            <input
+              type="file"
+              id="local-image-loader"
+              accept="image/*"
+              style="display: none"
+            />
+
+            <select id="game-select" class="stark-dropdown">
+              <option value="">TACTICAL DATABASE...</option>
+              <option value="csgo">Counter-Strike</option>
+              <option value="codm">Call of Duty: Mobile</option>
+            </select>
+
+            <select id="map-select" class="stark-dropdown" disabled>
+              <option value="">AWAITING GAME INPUT...</option>
+            </select>
+
+            <select id="matrix-filter-select" class="stark-dropdown" disabled>
+              <option value="none">RAW MATRIX</option>
+              <option value="hologram">HUD CORE (CYAN)</option>
+              <option value="nightvision">THERMAL (GREEN)</option>
+              <option value="infra">ALARM (RED)</option>
+            </select>
+
+            <button
+              id="clear-markers-btn"
+              class="custom-file-btn"
+              style="padding: 6px 12px; font-size: 0.8rem"
+              disabled
+            >
+              CLEAR TAGS
+            </button>
+          </div>
+
+          <div id="schematic-workbench" class="schematic-workbench">
+            <div class="empty-state" id="schematic-empty-state">
+              AWAITING ARCHIVE RECON FILE...
+            </div>
+            <div
+              id="canvas-container"
+              class="canvas-container"
+              style="display: none"
+            >
+              <img
+                id="active-schematic-img"
+                src=""
+                alt="Active Analysis Target"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="stark-window"
+        id="video-window"
+        style="
+          top: 25vh;
+          left: 45vw;
+          width: 560px;
+          height: 360px;
+          display: none;
+        "
+      >
+        <div class="window-header">
+          <div class="window-controls">
+            <span
+              class="close-btn"
+              onclick="closeWindow('video-window')"
+            ></span>
+          </div>
+          <span class="window-title">ARCHIVE // RECON VISUALS</span>
+        </div>
+        <div
+          class="window-content"
+          style="padding: 0; background: #000; flex-grow: 1"
+        >
+          <iframe
+            width="100%"
+            height="100%"
+            src="https://www.youtube.com/embed/M7lc1UVf-VE?rel=0"
+            title="OS Media"
+            frameborder="0"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+    </div>
+
+    <div id="context-menu" class="stark-context-menu">
+      <div onclick="openWindow('terminal-window')">> Open Terminal</div>
+      <div onclick="openWindow('photo-window')">🖼️ Load Schematics</div>
+      <div
+        style="border-top: 1px dashed rgba(0, 243, 255, 0.3); margin: 5px 0"
+      ></div>
+      <div onclick="location.reload()">↻ Reboot System</div>
+    </div>
+
+    <div
+      id="image-viewer-modal"
+      class="fullscreen-modal"
+      style="display: none"
+      onclick="closeImageViewer()"
+    >
+      <img id="viewer-img" src="" alt="Expanded Schematic" />
+      <div class="modal-hint">> CLICK ANYWHERE TO CLOSE</div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
