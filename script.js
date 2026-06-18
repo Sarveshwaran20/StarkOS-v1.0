@@ -63,26 +63,13 @@ draggableWindows.forEach((windowComponent) => {
   });
 });
 
-function toggleSidebar() {
-  const sidebar = document.getElementById("desktop-sidebar");
-  const toggleIcon = document.getElementById("toggle-icon");
-
-  sidebar.classList.toggle("collapsed");
-
-  if (sidebar.classList.contains("collapsed")) {
-    toggleIcon.innerText = ">>";
-  } else {
-    toggleIcon.innerText = "<<";
-  }
-}
-
 const inputField = document.getElementById("jarvis-input");
 const outputDisplay = document.getElementById("terminal-output");
 
 const coreProtocols = {
   help: () =>
     displayLog(
-      "PROTOCOLS AVAILABLE: open logs, open media, open schematics, close all, clear, diagnostic",
+      "PROTOCOLS: open logs, open media, open schematics, play snake, protocol 84, close all, clear",
     ),
   diagnostic: () => displayLog("SYSTEM INTEGRITY: 100%. ARC REACTOR: STABLE."),
   clear: () => (outputDisplay.innerHTML = ""),
@@ -102,7 +89,15 @@ const coreProtocols = {
     closeWindow("notes-window");
     closeWindow("photo-window");
     closeWindow("video-window");
+    closeWindow("snake-window");
     displayLog("TERMINATED ALL EXTRA VEHICULAR WINDOW PROCESSES.");
+  },
+  "avengers assemble": () => triggerEasterEgg(),
+  "protocol 84": () => initiateSelfDestruct(),
+  "play snake": () => {
+    openWindow("snake-window");
+    startSnakeGame();
+    displayLog("NEURAL ARCADE ENGAGED. USE ARROW KEYS.");
   },
 };
 
@@ -178,107 +173,119 @@ const mapSelect = document.getElementById("map-select");
 
 const tacticalArchives = {
   csgo: {
-    dust2: { name: "Dust II", url: "./Dust2.png" },
+    dust2: { name: "Dust II", url: "./dust2.jpg" },
     mirage: { name: "Mirage", url: "./mirage.jpg" },
     inferno: { name: "Inferno", url: "./inferno.jpg" },
-    nuke: { name: "Nuke", url: "./Nuke.jpg" },
+    nuke: { name: "Nuke", url: "./nuke.jpg" },
   },
   codm: {
     crash: { name: "Crash", url: "./crash.jpg" },
     nuketown: { name: "Nuketown", url: "./nuketown.jpg" },
-    crossfire: { name: "Crossfire", url: "./cross.jpg" },
-    firingrange: { name: "Firing Range", url: "./firing.jpg" },
+    crossfire: { name: "Crossfire", url: "./crossfire.jpg" },
+    firingrange: { name: "Firing Range", url: "./firingrange.jpg" },
   },
 };
 
-schematicLoader.addEventListener("change", (event) => {
-  const selectedFile = event.target.files[0];
-  if (!selectedFile || !selectedFile.type.startsWith("image/")) return;
+if (schematicLoader) {
+  schematicLoader.addEventListener("change", (event) => {
+    const selectedFile = event.target.files[0];
+    if (!selectedFile || !selectedFile.type.startsWith("image/")) return;
 
-  const reader = new FileReader();
-  reader.onload = (loadEvent) => {
-    activeImg.src = loadEvent.target.result;
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+      activeImg.src = loadEvent.target.result;
+      emptyStateMsg.style.display = "none";
+      canvasArea.style.display = "inline-block";
+
+      matrixFilterSelect.disabled = false;
+      clearMarkersBtn.disabled = false;
+
+      clearActiveMarkers();
+    };
+    reader.readAsDataURL(selectedFile);
+  });
+}
+
+if (gameSelect) {
+  gameSelect.addEventListener("change", (e) => {
+    const game = e.target.value;
+    mapSelect.innerHTML = '<option value="">SELECT MAP...</option>';
+
+    if (!game) {
+      mapSelect.disabled = true;
+      mapSelect.innerHTML = '<option value="">AWAITING GAME INPUT...</option>';
+      return;
+    }
+
+    mapSelect.disabled = false;
+    const maps = tacticalArchives[game];
+    for (const mapKey in maps) {
+      const option = document.createElement("option");
+      option.value = mapKey;
+      option.innerText = maps[mapKey].name;
+      mapSelect.appendChild(option);
+    }
+  });
+}
+
+if (mapSelect) {
+  mapSelect.addEventListener("change", (e) => {
+    const mapKey = e.target.value;
+    const gameKey = gameSelect.value;
+    if (!mapKey || !gameKey) return;
+
+    activeImg.src = tacticalArchives[gameKey][mapKey].url;
     emptyStateMsg.style.display = "none";
     canvasArea.style.display = "inline-block";
-
     matrixFilterSelect.disabled = false;
     clearMarkersBtn.disabled = false;
-
     clearActiveMarkers();
-  };
-  reader.readAsDataURL(selectedFile);
-});
+    mapSelect.value = "";
+  });
+}
 
-gameSelect.addEventListener("change", (e) => {
-  const game = e.target.value;
-  mapSelect.innerHTML = '<option value="">SELECT MAP...</option>';
+if (matrixFilterSelect) {
+  matrixFilterSelect.addEventListener("change", (e) => {
+    activeImg.className = "";
+    const currentVal = e.target.value;
+    if (currentVal !== "none") {
+      activeImg.classList.add(`filter-${currentVal}`);
+    }
+  });
+}
 
-  if (!game) {
-    mapSelect.disabled = true;
-    mapSelect.innerHTML = '<option value="">AWAITING GAME INPUT...</option>';
-    return;
-  }
+if (canvasArea) {
+  canvasArea.addEventListener("click", (event) => {
+    if (
+      event.target.classList.contains("hud-marker") ||
+      event.target.closest(".hud-marker-label")
+    )
+      return;
 
-  mapSelect.disabled = false;
-  const maps = tacticalArchives[game];
-  for (const mapKey in maps) {
-    const option = document.createElement("option");
-    option.value = mapKey;
-    option.innerText = maps[mapKey].name;
-    mapSelect.appendChild(option);
-  }
-});
+    const bounds = canvasArea.getBoundingClientRect();
+    const clickX = event.clientX - bounds.left;
+    const clickY = event.clientY - bounds.top;
 
-mapSelect.addEventListener("change", (e) => {
-  const mapKey = e.target.value;
-  const gameKey = gameSelect.value;
-  if (!mapKey || !gameKey) return;
+    const userAnnotation = prompt("ENTER COMPONENT TAC-DATA / NODE NAME:");
+    if (!userAnnotation) return;
 
-  activeImg.src = tacticalArchives[gameKey][mapKey].url;
-  emptyStateMsg.style.display = "none";
-  canvasArea.style.display = "inline-block";
-  matrixFilterSelect.disabled = false;
-  clearMarkersBtn.disabled = false;
-  clearActiveMarkers();
-  mapSelect.value = "";
-});
+    const pinMarker = document.createElement("div");
+    pinMarker.className = "hud-marker";
+    pinMarker.style.left = `${clickX}px`;
+    pinMarker.style.top = `${clickY}px`;
 
-matrixFilterSelect.addEventListener("change", (e) => {
-  activeImg.className = "";
-  const currentVal = e.target.value;
-  if (currentVal !== "none") {
-    activeImg.classList.add(`filter-${currentVal}`);
-  }
-});
+    const pinLabel = document.createElement("div");
+    pinLabel.className = "hud-marker-label";
+    pinLabel.innerText = userAnnotation.toUpperCase();
 
-canvasArea.addEventListener("click", (event) => {
-  if (
-    event.target.classList.contains("hud-marker") ||
-    event.target.closest(".hud-marker-label")
-  )
-    return;
+    pinMarker.appendChild(pinLabel);
+    canvasArea.appendChild(pinMarker);
+  });
+}
 
-  const bounds = canvasArea.getBoundingClientRect();
-  const clickX = event.clientX - bounds.left;
-  const clickY = event.clientY - bounds.top;
-
-  const userAnnotation = prompt("ENTER COMPONENT TAC-DATA / NODE NAME:");
-  if (!userAnnotation) return;
-
-  const pinMarker = document.createElement("div");
-  pinMarker.className = "hud-marker";
-  pinMarker.style.left = `${clickX}px`;
-  pinMarker.style.top = `${clickY}px`;
-
-  const pinLabel = document.createElement("div");
-  pinLabel.className = "hud-marker-label";
-  pinLabel.innerText = userAnnotation.toUpperCase();
-
-  pinMarker.appendChild(pinLabel);
-  canvasArea.appendChild(pinMarker);
-});
-
-clearMarkersBtn.addEventListener("click", clearActiveMarkers);
+if (clearMarkersBtn) {
+  clearMarkersBtn.addEventListener("click", clearActiveMarkers);
+}
 
 function clearActiveMarkers() {
   const currentMarkers = canvasArea.querySelectorAll(".hud-marker");
@@ -330,7 +337,7 @@ window.addEventListener("load", () => {
 
   let delay = 0;
 
-  bootSteps.forEach((step, index) => {
+  bootSteps.forEach((step) => {
     setTimeout(() => {
       bootText.innerHTML += `<div>> ${step}</div>`;
     }, delay);
@@ -376,7 +383,6 @@ function initializeWeatherSystem() {
         const cityName = data.name.toUpperCase();
 
         weatherDisplay.innerText = `LOC: ${cityName} // TEMP: ${temp}°C // ${conditionText}`;
-
         triggerWelcomeSequence(cityName);
       })
       .catch((error) => {
@@ -393,25 +399,193 @@ function initializeWeatherSystem() {
 }
 
 function triggerWelcomeSequence(locationName) {
-  const outputDisplay = document.getElementById("terminal-output");
-  if (!outputDisplay) return;
+  const outputDisp = document.getElementById("terminal-output");
+  if (!outputDisp) return;
 
   const welcomeHeader = document.createElement("div");
-  welcomeHeader.style.color = "#00f3ff";
+  welcomeHeader.style.color = "var(--neon-pink)";
   welcomeHeader.style.marginTop = "15px";
-  welcomeHeader.style.borderTop = "1px dashed rgba(0, 243, 255, 0.3)";
+  welcomeHeader.style.borderTop = "1px dashed var(--neon-purple)";
   welcomeHeader.style.paddingTop = "10px";
   welcomeHeader.innerText = `[RECON LINK ACTIVE] SECURITY CLEARED FOR DETECTED HUB: ${locationName}`;
 
   const welcomeMessage = document.createElement("div");
-  welcomeMessage.style.color = "#ff3333";
-  welcomeMessage.style.textShadow = "0 0 8px #ff3333";
+  welcomeMessage.style.color = "var(--hacker-red)";
+  welcomeMessage.style.textShadow = "0 0 8px var(--hacker-red)";
   welcomeMessage.innerText =
     ">> J.A.R.V.I.S.: WELCOME BACK TO THE MAINFRAME, SIR. ALL LOGISTICS ARCHIVES ARE ONLINE.";
 
-  outputDisplay.appendChild(welcomeHeader);
-  outputDisplay.appendChild(welcomeMessage);
-  outputDisplay.scrollTop = outputDisplay.scrollHeight;
+  outputDisp.appendChild(welcomeHeader);
+  outputDisp.appendChild(welcomeMessage);
+  outputDisp.scrollTop = outputDisp.scrollHeight;
 }
 
-setTimeout(initializeWeatherSystem, 2000);
+function triggerEasterEgg() {
+  const art = `
+             .-------.
+           .'         '.
+          /    / \\      \\
+         |    /   \\      |
+         |   /_____\\_____|____>
+         |  /       \\    |
+          \\ \\       /   /
+           '.\\     /  .'
+             '-------'
+  `;
+  const lines = art.split("\n");
+  lines.forEach((line) => {
+    const artDiv = document.createElement("div");
+    artDiv.style.color = "var(--neon-pink)";
+    artDiv.style.whiteSpace = "pre";
+    artDiv.style.fontWeight = "bold";
+    artDiv.innerText = line;
+    outputDisplay.appendChild(artDiv);
+  });
+  displayLog(">> AVENGERS INITIATIVE PROTOCOL ACCEPTED.");
+}
+
+function initiateSelfDestruct() {
+  displayLog(">> CRITICAL WARNING: PROTOCOL 84 ENGAGED.");
+  document.body.classList.add("self-destruct-active");
+
+  const overlay = document.getElementById("self-destruct-overlay");
+  const counter = document.getElementById("sd-countdown");
+  overlay.style.display = "flex";
+
+  let count = 10;
+  const interval = setInterval(() => {
+    count--;
+    counter.innerText = count;
+    if (count <= 0) {
+      clearInterval(interval);
+      document.body.innerHTML = `
+        <div style="height: 100vh; width: 100vw; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--hacker-red); font-family: 'Rajdhani', monospace;">
+          <h1 style="font-size: 4rem;">SYSTEM TERMINATED</h1>
+          <p style="font-size: 1.5rem; margin-top: 20px; color: var(--neon-purple); cursor: pointer;" onclick="location.reload()">[ CLICK TO REBOOT MAINFRAME ]</p>
+        </div>
+      `;
+      document.body.classList.remove("self-destruct-active");
+    }
+  }, 1000);
+}
+
+let snakeGameInterval;
+
+function startSnakeGame() {
+  const canvas = document.getElementById("snake-canvas");
+  const ctx = canvas.getContext("2d");
+  const scoreDisplay = document.getElementById("snake-score");
+  const restartBtn = document.getElementById("snake-restart-btn");
+
+  if (restartBtn) restartBtn.style.display = "none";
+
+  const gridSize = 20;
+  let snake = [{ x: 160, y: 160 }];
+  let dx = gridSize;
+  let dy = 0;
+  let appleX = 100;
+  let appleY = 100;
+  let score = 0;
+
+  if (snakeGameInterval) clearInterval(snakeGameInterval);
+
+  function randomTen(min, max) {
+    return (
+      Math.round((Math.random() * (max - min) + min) / gridSize) * gridSize
+    );
+  }
+
+  function spawnApple() {
+    appleX = randomTen(0, canvas.width - gridSize);
+    appleY = randomTen(0, canvas.height - gridSize);
+  }
+
+  function drawGame() {
+    const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+    snake.unshift(head);
+
+    if (head.x === appleX && head.y === appleY) {
+      score += 10;
+      scoreDisplay.innerText = `SCORE: ${score}`;
+      spawnApple();
+    } else {
+      snake.pop();
+    }
+
+    if (
+      head.x < 0 ||
+      head.x >= canvas.width ||
+      head.y < 0 ||
+      head.y >= canvas.height ||
+      hasEatenItself(head)
+    ) {
+      clearInterval(snakeGameInterval);
+      ctx.fillStyle = "rgba(255, 0, 124, 0.8)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff";
+      ctx.font = "30px Rajdhani";
+      ctx.textAlign = "center";
+      ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+      ctx.font = "20px Rajdhani";
+      ctx.fillText(
+        `FINAL SCORE: ${score}`,
+        canvas.width / 2,
+        canvas.height / 2 + 30,
+      );
+
+      if (restartBtn) restartBtn.style.display = "inline-block";
+      return;
+    }
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#ff007c"; /* Neon Pink */
+    ctx.fillRect(appleX, appleY, gridSize - 2, gridSize - 2);
+
+    ctx.fillStyle = "#00ff66"; /* Toxic Green */
+    snake.forEach((part) => {
+      ctx.fillRect(part.x, part.y, gridSize - 2, gridSize - 2);
+    });
+  }
+
+  function hasEatenItself(head) {
+    for (let i = 1; i < snake.length; i++) {
+      if (head.x === snake[i].x && head.y === snake[i].y) return true;
+    }
+    return false;
+  }
+
+  document.onkeydown = (event) => {
+    const goingUp = dy === -gridSize;
+    const goingDown = dy === gridSize;
+    const goingRight = dx === gridSize;
+    const goingLeft = dx === -gridSize;
+
+    if (event.key === "ArrowLeft" && !goingRight) {
+      dx = -gridSize;
+      dy = 0;
+    }
+    if (event.key === "ArrowUp" && !goingDown) {
+      dx = 0;
+      dy = -gridSize;
+    }
+    if (event.key === "ArrowRight" && !goingLeft) {
+      dx = gridSize;
+      dy = 0;
+    }
+    if (event.key === "ArrowDown" && !goingUp) {
+      dx = 0;
+      dy = gridSize;
+    }
+  };
+
+  spawnApple();
+  scoreDisplay.innerText = `SCORE: 0`;
+  snakeGameInterval = setInterval(drawGame, 100);
+}
+
+const snakeRestartBtn = document.getElementById("snake-restart-btn");
+if (snakeRestartBtn) {
+  snakeRestartBtn.addEventListener("click", startSnakeGame);
+}

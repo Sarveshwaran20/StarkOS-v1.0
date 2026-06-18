@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StarkOS v1.1</title>
+    <title>StarkOS v7.0</title>
     <link rel="stylesheet" href="style.css" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -29,7 +29,7 @@
           style="
             margin-top: 15px;
             font-size: 1rem;
-            color: rgba(0, 243, 255, 0.8);
+            color: var(--neon-purple);
             font-weight: 600;
             letter-spacing: 2px;
           "
@@ -40,34 +40,10 @@
     </div>
 
     <div class="stark-desktop">
-      <div class="desktop-sidebar-wrapper">
-        <div class="sidebar-toggle" onclick="toggleSidebar()">
-          <span id="toggle-icon"><<</span>
-        </div>
-        <div class="desktop-icons" id="desktop-sidebar">
-          <div class="desktop-icon" onclick="openWindow('terminal-window')">
-            <div class="icon-graphic">>_</div>
-            <span>Terminal</span>
-          </div>
-          <div class="desktop-icon" onclick="openWindow('notes-window')">
-            <div class="icon-graphic">📝</div>
-            <span>System Logs</span>
-          </div>
-          <div class="desktop-icon" onclick="openWindow('photo-window')">
-            <div class="icon-graphic">🖼️</div>
-            <span>Schematics</span>
-          </div>
-          <div class="desktop-icon" onclick="openWindow('video-window')">
-            <div class="icon-graphic">▶️</div>
-            <span>Media</span>
-          </div>
-        </div>
-      </div>
-
       <div
         class="stark-window"
         id="terminal-window"
-        style="top: 10vh; left: 15vw; width: 460px; height: 380px"
+        style="top: 10vh; left: 15vw; width: 600px; height: 420px"
       >
         <div class="window-header">
           <div class="window-controls">
@@ -144,8 +120,8 @@
               padding: 10px;
               margin: 0;
               background: transparent;
-              border: 1px solid rgba(0, 243, 255, 0.2);
-              color: #00f3ff;
+              border: 1px solid var(--neon-purple);
+              color: var(--neon-pink);
               font-family: &quot;Rajdhani&quot;, monospace;
               resize: none;
               outline: none;
@@ -186,11 +162,14 @@
               gap: 10px;
               justify-content: center;
               align-items: center;
-              border-bottom: 1px dashed rgba(0, 243, 255, 0.2);
+              border-bottom: 1px dashed var(--neon-purple);
               padding-bottom: 10px;
             "
           >
-            <label for="local-image-loader" class="custom-file-btn"
+            <label
+              for="local-image-loader"
+              class="custom-file-btn"
+              style="padding: 6px 12px; font-size: 0.8rem"
               >LOCAL UPLINK</label
             >
             <input
@@ -212,9 +191,9 @@
 
             <select id="matrix-filter-select" class="stark-dropdown" disabled>
               <option value="none">RAW MATRIX</option>
-              <option value="hologram">HUD CORE (CYAN)</option>
-              <option value="nightvision">THERMAL (GREEN)</option>
-              <option value="infra">ALARM (RED)</option>
+              <option value="hologram">HUD CORE</option>
+              <option value="nightvision">THERMAL</option>
+              <option value="infra">ALARM</option>
             </select>
 
             <button
@@ -280,13 +259,95 @@
           ></iframe>
         </div>
       </div>
+
+      
+     <div class="stark-window" id="snake-window" style="top: 20vh; left: 35vw; width: 400px; height: 450px; display: none;">
+      <div class="window-header">
+        <div class="window-controls"><span class="close-btn" onclick="closeWindow('snake-window')"></span></div>
+        <span class="window-title">ARCADE // NEURAL SNAKE</span>
+      </div>
+      <div class="window-content" style="display: flex; justify-content: center; align-items: center; background: #000; flex-direction: column;">
+        
+        <canvas id="snake-canvas" width="360" height="360" style="border: 2px solid var(--neon-pink); box-shadow: 0 0 10px var(--neon-purple);"></canvas>
+        <div id="snake-score" style="margin-top: 10px; color: var(--toxic-green); font-weight: bold; font-size: 1.2rem;">SCORE: 0</div>
+        
+        <button id="snake-restart-btn" class="custom-file-btn" style="display: none; position: absolute; top: 68%; left: 50%; transform: translate(-50%, -50%); padding: 10px 25px; font-size: 1rem; z-index: 100; background: rgba(9, 2, 10, 0.9); box-shadow: 0 0 15px var(--neon-purple);">PLAY AGAIN</button>
+      
+      </div>
+    </div>
+          <div
+            id="snake-score"
+            style="
+              margin-top: 10px;
+              color: var(--toxic-green);
+              font-weight: bold;
+              font-size: 1.2rem;
+            "
+          >
+          
+          </div>
+          <button
+            id="snake-restart-btn"
+            class="custom-file-btn"
+            style="
+              display: none;
+              margin-top: 10px;
+              padding: 5px 15px;
+              font-size: 0.9rem;
+            "
+          >
+            PLAY AGAIN
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-taskbar">
+      <div class="taskbar-search">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          id="os-search"
+          autocomplete="off"
+          placeholder="SEARCH MATRIX..."
+        />
+      </div>
+
+      <div class="taskbar-apps">
+        <div class="desktop-icon" onclick="openWindow('terminal-window')">
+          <div class="icon-graphic">>_</div>
+          <span>Terminal</span>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('notes-window')">
+          <div class="icon-graphic">📝</div>
+          <span>Logs</span>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('photo-window')">
+          <div class="icon-graphic">🖼️</div>
+          <span>Schematics</span>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('video-window')">
+          <div class="icon-graphic">▶️</div>
+          <span>Media</span>
+        </div>
+        <div
+          class="desktop-icon"
+          onclick="
+            openWindow('snake-window');
+            startSnakeGame();
+          "
+        >
+          <div class="icon-graphic">🐍</div>
+          <span>Arcade</span>
+        </div>
+      </div>
     </div>
 
     <div id="context-menu" class="stark-context-menu">
       <div onclick="openWindow('terminal-window')">> Open Terminal</div>
       <div onclick="openWindow('photo-window')">🖼️ Load Schematics</div>
       <div
-        style="border-top: 1px dashed rgba(0, 243, 255, 0.3); margin: 5px 0"
+        style="border-top: 1px dashed var(--neon-purple); margin: 5px 0"
       ></div>
       <div onclick="location.reload()">↻ Reboot System</div>
     </div>
@@ -299,6 +360,46 @@
     >
       <img id="viewer-img" src="" alt="Expanded Schematic" />
       <div class="modal-hint">> CLICK ANYWHERE TO CLOSE</div>
+    </div>
+
+    <div
+      id="self-destruct-overlay"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(255, 42, 42, 0.9);
+        z-index: 9999999;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      "
+    >
+      <h1
+        style="
+          font-size: 4rem;
+          color: #fff;
+          letter-spacing: 10px;
+          text-shadow: 5px 5px 0px #000;
+        "
+      >
+        PROTOCOL 84 INITIATED
+      </h1>
+      <h2
+        id="sd-countdown"
+        style="
+          font-size: 12rem;
+          color: #000;
+          font-weight: 800;
+          text-shadow: 0 0 50px #fff;
+        "
+      >
+        10
+      </h2>
     </div>
 
     <script src="script.js"></script>
